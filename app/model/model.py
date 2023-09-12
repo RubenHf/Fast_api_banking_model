@@ -1,22 +1,15 @@
 ﻿import pandas as pd
 from pathlib import Path
-import shap
 import joblib
-import numpy as np
-import copy
 import itertools
+import numpy as np
+import shap 
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent
 
 # On load le modèle 
 model = joblib.load(f"{BASE_DIR}/banking_model_20230901135647/model.pkl")
 proba_threshold = 0.42
-
-# on charge l'objet explainer du modèle
-with open(f"{BASE_DIR}/explainer_model.pkl", 'rb') as explainer_file:
-    explainer_model = joblib.load(explainer_file)
-# on charge les valeurs du modèle
-feature_importance = pd.read_csv(f"{BASE_DIR}/shap_values_model.csv") 
 
 def preparation_file_model(df):
     ###
@@ -28,7 +21,7 @@ def preparation_file_model(df):
         df.drop(["DAYS_BIRTH"], axis = 1, inplace = True)
         
     if "ANNEES_LAST_PHONE_CHANGE" in df.columns:
-        df["ANNEES_LAST_PHONE_CHANGE"] = round((abs(df.DAYS_LAST_PHONE_CHANGE) / 365.25), 2)
+        df["ANNEES_LAST_PHONE_CHANGE"] = np.round((abs(df.DAYS_LAST_PHONE_CHANGE) / 365.25), 2)
         # On élimine l' ancienne variable
         df.drop(["DAYS_LAST_PHONE_CHANGE"], axis = 1, inplace = True)
     
@@ -46,23 +39,21 @@ def application_model(df):
     ###
     #    Fonction permettant d'appliquer le modèle au dataframe
     ###
-    
-    result_df = copy.deepcopy(df)
-    print(result_df)
+
     # On prédit les probabilité selon le modèle
     # Prédiction d'avoir un prêt
-    result_df["proba_pred_pret"] = np.round(model.predict_proba(result_df)[:, 0], 2)
+    df["proba_pred_pret"] = np.round(model.predict_proba(df)[:, 0], 2)
     # Prédiction de ne pas avoir un prêt
-    result_df["proba_pred_non_pret"] = np.round(1 - result_df["proba_pred_pret"], 2)
+    df["proba_pred_non_pret"] = np.round(1 - df["proba_pred_pret"], 2)
     
     # Résultat selon le threshold du modèle établit. 
     # Si au dessus, la valeur = 1, ce qui correspond à la non obtention d'un prêt
-    result_df["prediction"] = np.where(result_df["proba_pred_non_pret"] >= proba_threshold, 1, 0)
+    df["prediction"] = np.where(df["proba_pred_non_pret"] >= proba_threshold, 1, 0)
     
-    result_df["prediction_pret"] = np.where(result_df["prediction"] == 1, "Non pret", "Pret")
-    result_df = scoring_pret(result_df)
+    df["prediction_pret"] = np.where(df["prediction"] == 1, "Non pret", "Pret")
+    df = scoring_pret(df)
 
-    return result_df
+    return df
 
 def feature_importance_client(df): 
     ###
@@ -77,6 +68,10 @@ def feature_importance_client(df):
     
     x_train_preprocessed = pd.DataFrame(x_train_preprocessed, columns = selected_cols)
     
+    # on charge l'objet explainer du modèle
+    with open(f"{BASE_DIR}/explainer_model.pkl", 'rb') as explainer_file:
+        explainer_model = joblib.load(explainer_file)
+
     shap_values = explainer_model(x_train_preprocessed)
     
     df_sk_shape = pd.DataFrame({'SK_ID_CURR': df["SK_ID_CURR"].values, 'value_total': shap_values.values.sum(axis=1)})

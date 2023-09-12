@@ -1,5 +1,5 @@
 ﻿import sys
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException
 import pandas as pd
 import numpy as np
@@ -30,11 +30,11 @@ def preparation_file(payload: DataframeIn):
     # On transforme le dictionnaire en Dataframe
     input_df = pd.DataFrame(payload.data)
 
-    input_df = input_df.replace(-.0123456789, np.nan)
+    input_df = input_df.replace(-.0123, np.nan)
 
     prepared_df = preparation_file_model(input_df)
     
-    prepared_df = prepared_df.fillna(-.0123456789)
+    prepared_df = prepared_df.fillna(-.0123)
     
     prepared_dict = {
         "data": prepared_df.to_dict('list')
@@ -55,11 +55,11 @@ def predict(payload: DataframeIn):
     # On transforme le dictionnaire en Dataframe
     input_df = pd.DataFrame(payload.data)
 
-    input_df = input_df.replace(-.0123456789, np.nan)
+    input_df = input_df.replace(-.0123, np.nan)
 
     prepared_df = application_model(input_df)
     
-    prepared_df = prepared_df.fillna(-.0123456789)
+    prepared_df = prepared_df.fillna(-.0123)
    
     prepared_dict = {
         "data": prepared_df.to_dict('list')
@@ -81,11 +81,11 @@ def predict(payload: DataframeIn):
 # On transforme le dictionnaire en Dataframe
     input_df = pd.DataFrame(payload.data)
 
-    input_df = input_df.replace(-.0123456789, np.nan)
+    input_df = input_df.replace(-.0123, np.nan)
 
     prepared_df = feature_importance_client(input_df)
     
-    prepared_df = prepared_df.fillna(-.0123456789)
+    prepared_df = prepared_df.fillna(-.0123)
 
     prepared_dict = {
         "data": prepared_df.to_dict('list')
