@@ -5,10 +5,11 @@ import shap
 from mlflow.sklearn import load_model
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent
-
+print(BASE_DIR)
+model = load_model(f"{BASE_DIR}/banking_model_20230915203320")
 # On load le modèle 
 #model = joblib.load(f"{BASE_DIR}/banking_model_20230915203320.pkl")
-model = load_model("banking_model_20230915203320")
+
 proba_threshold = 0.42
 
 def application_model(df):
