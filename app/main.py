@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 
 # On importe les fonctions liées au modèle
-from app.model.model import application_model, feature_importance_client, get_threshold, get_model
+from app.model.model import application_model, feature_importance_client, get_threshold, get_model, get_feature_importance_model
 
 
 project_path = r'C:\Users\33664\Desktop\Data scientist formation\[Projets]\Projet test'
@@ -31,6 +31,13 @@ def predict():
 
     return {"data": get_threshold()}
 
+@app.post("/shap_model", response_model=DataframeOut)
+def predict():
+    prepared_df = {
+        "data" : get_feature_importance_model.to_dict('list')
+    }
+
+    return prepared_df
 
 @app.post("/prediction", response_model=DataframeOut)
 def predict(payload: DataframeIn):

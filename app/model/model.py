@@ -18,6 +18,14 @@ with open(f"{BASE_DIR}/banking_model_seuil_20230915203320.pkl", 'rb') as seuil:
 with open(f"{BASE_DIR}/explainer_model.pkl", 'rb') as explainer_file:
     explainer_model = joblib.load(explainer_file)
 
+def get_feature_importance_model():
+    ###
+    #   Fonction retournant les valeurs SHAPs du modèle
+    ###
+    feature_importance = pd.read_csv("shap_values_model.csv")
+
+    return feature_importance
+
 def get_threshold():
     ###
     #    Fonction retournant le threshold optimal utilisé pour le modèle
