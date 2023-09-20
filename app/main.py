@@ -34,7 +34,7 @@ def predict():
 @app.post("/shap_model", response_model=DataframeOut)
 def predict():
     prepared_df = {
-        "data" : get_feature_importance_model.to_dict('list')
+        "data" : get_feature_importance_model().to_dict('list')
     }
 
     return prepared_df
