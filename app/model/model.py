@@ -11,6 +11,22 @@ BASE_DIR = Path(__file__).resolve(strict=True).parent
 model = load_model(f"{BASE_DIR}/banking_model_20230915203320")
 
 
+def get_impact_threshold_risque():
+    ###
+    #   Fonction retournant les études d'impact sur les risques selon threshold
+    ###
+    risque = pd.read_csv("Risque assessment.csv")
+
+    return risque
+
+def get_impact_threshold_clients():
+    ###
+    #   Fonction retournant les études d'impact sur le pourcentage de client selon threshold
+    ###
+    clients = pd.read_csv("Potentiel clients.csv")
+
+    return clients
+
 def get_feature_importance_model():
     ###
     #   Fonction retournant les valeurs SHAPs du modèle

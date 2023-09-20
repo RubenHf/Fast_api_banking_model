@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 
 # On importe les fonctions liées au modèle
-from app.model.model import application_model, feature_importance_client, get_threshold, get_model, get_feature_importance_model
+from app.model.model import application_model, feature_importance_client, get_threshold, get_model, get_feature_importance_model, get_impact_threshold_risque, get_impact_threshold_clients
 
 
 project_path = r'C:\Users\33664\Desktop\Data scientist formation\[Projets]\Projet test'
@@ -39,8 +39,21 @@ def predict():
     prepared_df = {
         "data" : get_feature_importance_model().to_dict('list')
     }
-
     return prepared_df
+
+@app.post("/risque_th_model", response_model=DataframeOut)
+def predict():
+    prepared_risque = {
+        "data" : get_impact_threshold_risque().to_dict('list')
+    }
+    return prepared_risque
+
+@app.post("/client_th_model", response_model=DataframeOut)
+def predict():
+    prepared_clients = {
+        "data" : get_impact_threshold_clients()[1].to_dict('list')}
+    return prepared_clients
+
 
 @app.post("/prediction", response_model=DataframeOut)
 def predict(payload: DataframeInThresholdIn):
