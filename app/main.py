@@ -51,7 +51,8 @@ def predict():
 @app.post("/client_th_model", response_model=DataframeOut)
 def predict():
     prepared_clients = {
-        "data" : get_impact_threshold_clients()[1].to_dict('list')}
+        "data" : get_impact_threshold_clients().to_dict('list')
+        }
     return prepared_clients
 
 
