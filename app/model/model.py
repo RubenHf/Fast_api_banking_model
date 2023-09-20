@@ -10,19 +10,12 @@ BASE_DIR = Path(__file__).resolve(strict=True).parent
 # On charge le modèle 
 model = load_model(f"{BASE_DIR}/banking_model_20230915203320")
 
-# On charge le seuil
-with open(f"{BASE_DIR}/banking_model_seuil_20230915203320.pkl", 'rb') as seuil:
-    threshold = 1 - joblib.load(seuil)
-
-# On charge l'objet explainer du modèle
-with open(f"{BASE_DIR}/explainer_model.pkl", 'rb') as explainer_file:
-    explainer_model = joblib.load(explainer_file)
 
 def get_feature_importance_model():
     ###
     #   Fonction retournant les valeurs SHAPs du modèle
     ###
-    feature_importance = pd.read_csv("shap_values_model.csv")
+    feature_importance = pd.read_csv(f"{BASE_DIR}/shap_values_model.csv")
 
     return feature_importance
 
@@ -30,6 +23,10 @@ def get_threshold():
     ###
     #    Fonction retournant le threshold optimal utilisé pour le modèle
     ###
+    # On charge le seuil
+    with open(f"{BASE_DIR}/banking_model_seuil_20230915203320.pkl", 'rb') as seuil:
+        threshold = 1 - joblib.load(seuil)
+
     return threshold
 
 def get_model():
@@ -38,7 +35,7 @@ def get_model():
     ###
     return model
 
-def application_model(df):
+def application_model(df, threshold_app):
     ###
     #    Fonction permettant d'appliquer le modèle au dataframe
     ###
@@ -51,7 +48,7 @@ def application_model(df):
 
     # Résultat selon le threshold du modèle établit. 
     # Si au dessus du threshold, la valeur = 0, ce qui correspond à l'obtention d'un prêt
-    df["prediction"] = np.where(df["proba_pred_pret"] > threshold, 0, 1)
+    df["prediction"] = np.where(df["proba_pred_pret"] > threshold_app, 0, 1)
     
     df["prediction_pret"] = np.where(df["prediction"] == 1, "Non pret", "Pret")
     
@@ -62,6 +59,10 @@ def feature_importance_client(df):
     #    Fonction permettant de mesurer l'importance des features pour le client
     ###
     
+    # On charge l'objet explainer du modèle
+    with open(f"{BASE_DIR}/explainer_model.pkl", 'rb') as explainer_file:
+        explainer_model = joblib.load(explainer_file)
+
     features = model.named_steps["select_columns"].transform(df).columns
     
     x_train_preprocessed = model[:-1].transform(df[features])

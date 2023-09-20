@@ -16,6 +16,9 @@ app = FastAPI()
 
 class DataframeIn(BaseModel):
     data:dict
+class DataframeInThresholdIn(BaseModel):
+    data:dict
+    thresh:float
 class DataframeOut(BaseModel):
     data:dict
 class FloatOut(BaseModel):
@@ -40,14 +43,14 @@ def predict():
     return prepared_df
 
 @app.post("/prediction", response_model=DataframeOut)
-def predict(payload: DataframeIn):
+def predict(payload: DataframeInThresholdIn):
 
     # On transforme le dictionnaire en Dataframe
     input_df = pd.DataFrame(payload.data)
 
     input_df = input_df.replace(-.0123, np.nan)
 
-    prepared_df = application_model(input_df)
+    prepared_df = application_model(input_df, payload.thresh)
     
     prepared_df = prepared_df.fillna(-.0123)
    
