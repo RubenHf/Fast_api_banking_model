@@ -18,16 +18,22 @@ class DataframeIn(BaseModel):
     data:dict
 class DataframeOut(BaseModel):
     data:dict
-
+class FloatOut(BaseModel):
+    data:float
 
 @app.get("/")
 
 def home():
     return {"health_check": "OK"}
 
+@app.post("/get_threshold", response_model=FloatOut)
+def predict():
+
+    return get_threshold()
+
+
 @app.post("/prediction", response_model=DataframeOut)
 def predict(payload: DataframeIn):
-    print("testing")
 
     # On transforme le dictionnaire en Dataframe
     input_df = pd.DataFrame(payload.data)
