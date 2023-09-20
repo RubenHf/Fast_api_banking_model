@@ -29,7 +29,7 @@ def home():
 @app.post("/get_threshold", response_model=FloatOut)
 def predict():
 
-    return get_threshold()
+    return {"data": get_threshold()}
 
 
 @app.post("/prediction", response_model=DataframeOut)
