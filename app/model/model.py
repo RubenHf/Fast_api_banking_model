@@ -15,7 +15,7 @@ def get_impact_threshold_risque():
     ###
     #   Fonction retournant les études d'impact sur les risques selon threshold
     ###
-    risque = pd.read_csv("Risque assessment.csv")
+    risque = pd.read_csv(f"{BASE_DIR}/Risque assessment.csv")
 
     return risque
 
@@ -23,7 +23,7 @@ def get_impact_threshold_clients():
     ###
     #   Fonction retournant les études d'impact sur le pourcentage de client selon threshold
     ###
-    clients = pd.read_csv("Potentiel clients.csv")
+    clients = pd.read_csv(f"{BASE_DIR}/Potentiel clients.csv")
 
     return clients
 
