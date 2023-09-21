@@ -3,6 +3,7 @@ from pathlib import Path
 import numpy as np
 import shap 
 import joblib
+import itertools
 from mlflow.sklearn import load_model
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent
@@ -69,6 +70,53 @@ def application_model(df, threshold_app):
     df["prediction_pret"] = np.where(df["prediction"] == 1, "Non pret", "Pret")
     
     return df
+
+def application_model_score(df, threshold_app):
+    
+    # On calcul un score selon si le client a obtenu un prêt ou pas
+    # Ce score donne une autre appréciation des probabilités, plus parlant pour un consommateur
+    min_value = threshold_app  
+    max_value = threshold_app
+    
+    df.loc[df.prediction_pret == "Pret", "score"] = (df["proba_pred_pret"] - min_value) / (1 - min_value)
+    df.loc[df.prediction_pret == "Non pret", "score"] = (1 - (df["proba_pred_pret"] / max_value)) * - 1
+    df.loc[:, "score"] = round(df.loc[:, "score"], 4)
+    
+    lettres = ['a', 'b', 'c', 'd', 'e', 'f']
+    signes = ['++', '+', '-', '--']
+
+    # On génére 2 dictionnaires
+    bon_clients = {}
+    mauvais_clients = {}
+
+    point_decr = (100 / ((len(lettres) * len(signes)) / 2)) / 100
+
+    point = 1
+    for l, s in itertools.product(lettres[:3], signes):
+        key = l + s
+        bon_clients[key] = round(point, 2)
+        point -= point_decr
+    
+    point = 0
+    for l, s in itertools.product(lettres[3:], signes):
+        key = l + s
+        mauvais_clients[key] = round(point, 2)*-1
+        point += point_decr
+
+    condition1 = df.prediction_pret == "Pret"
+    condition2 = df.prediction_pret == "Non pret"
+
+    for keys, items in bon_clients.items():
+        df.loc[(condition1) & (df.score <= items), "score_note"] = keys
+
+    for keys, items in mauvais_clients.items():
+        df.loc[(condition2) & (df.score <= items), "score_note"] = keys
+
+
+    df.loc[:, "score"] = round(df.loc[:, "score"]*100, 2)
+    
+    return df
+
 
 def feature_importance_client(df): 
     ###
