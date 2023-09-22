@@ -2,6 +2,4 @@ build:
   docker:
     web: Dockerfile
 
-name: Run unit tests
-
 run : python -m pytest
